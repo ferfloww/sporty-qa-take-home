@@ -29,11 +29,19 @@ Runs with a visible, maximized Chrome window — the `driver` fixture in
 `conftest.py` doesn't wire up headless mode yet, so add that before running
 the e2e suite in CI.
 
-Environment and user are configurable:
+Environment and user are configurable — either inline or via a `.env` file
+(copy `.env.example`, it's picked up automatically):
 
 ```bash
 BASE_URL=https://staging.example.com USER_ID=some-other-user pytest
 ```
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `BASE_URL` | `https://qae-assignment-tau.vercel.app` | App and API host |
+| `USER_ID` | `candidate-2zwV7d2uMnKk` | Test account |
+| `API_TIMEOUT` | `10` | Seconds, HTTP request timeout |
+| `EXPLICIT_WAIT` | `10` | Seconds, Selenium wait timeout |
 
 ### Allure report
 

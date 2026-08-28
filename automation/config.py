@@ -1,13 +1,17 @@
 import os
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 class Config:
 
     BASE_URL = os.getenv("BASE_URL", "https://qae-assignment-tau.vercel.app")
     USER_ID = os.getenv("USER_ID", "candidate-2zwV7d2uMnKk")
 
-    API_TIMEOUT = 10
-    EXPLICIT_WAIT = 10
+    API_TIMEOUT = int(os.getenv("API_TIMEOUT", "10"))
+    EXPLICIT_WAIT = int(os.getenv("EXPLICIT_WAIT", "10"))
 
     @property
     def api_base_url(self) -> str:

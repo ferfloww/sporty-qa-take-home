@@ -20,7 +20,10 @@ def driver(request):
     drv = webdriver.Chrome()  # o el driver/opciones que uses en el proyecto
     drv.maximize_window()
     yield drv
-    if getattr(request.node, "rep_call", None) is not None and request.node.rep_call.failed:
+    if (
+        getattr(request.node, "rep_call", None) is not None
+        and request.node.rep_call.failed
+    ):
         allure.attach(
             drv.get_screenshot_as_png(),
             name="failure-screenshot",

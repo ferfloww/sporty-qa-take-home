@@ -29,5 +29,3 @@ instructions for the automated suite. `strategy.md` ties it together with the
 reasoning behind the automation choices and recommendations for scaling.
 
 ---
-
-*This README will be expanded once the automation framework is finalized.*

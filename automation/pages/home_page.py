@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 
 from config import config
 from pages.base_page import BasePage
-from pages.components.match_list import BetSlip, MatchList
+from pages.components.match_list import MatchList
 from utils import parse_number
 
 
@@ -22,4 +22,5 @@ class HomePage(BasePage):
         return self
 
     def get_header_balance(self) -> float:
-        return parse_number(self.get_text(self.HEADER_BALANCE))
+        text = self.get_text_until(self.HEADER_BALANCE, lambda t: parse_number(t) > 0)
+        return parse_number(text)

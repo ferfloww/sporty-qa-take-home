@@ -1,9 +1,8 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 
-from automation.utils import parse_number
-from config import config
 from pages.base_page import BasePage
+from pages.components.bet_slip import BetSlip
 from pages.models import MatchSelection
 from utils import parse_number
 
@@ -13,9 +12,7 @@ class MatchList(BasePage):
     MATCH_ROWS = (By.CLASS_NAME, "matchCard")
 
     def get_match_cards(self) -> list["MatchCard"]:
-        return [
-            MatchCard(self.driver, e) for e in self.driver.find_all(*self.MATCH_ROWS)
-        ]
+        return [MatchCard(self.driver, e) for e in self.find_all(self.MATCH_ROWS)]
 
     def get_match_card(self, index: int = 0) -> "MatchCard":
         return self.get_match_cards()[index]
@@ -30,35 +27,39 @@ class MatchCard(BasePage):
     DRAW_ODDS_BUTTON = (By.CSS_SELECTOR, "button[id$='-draw']")
     ODDS_VALUE = (By.CSS_SELECTOR, ".oddsButtonValue")
 
+    OUTCOME_BUTTONS = {
+        "1": HOME_ODDS_BUTTON,
+        "X": DRAW_ODDS_BUTTON,
+        "2": AWAY_ODDS_BUTTON,
+    }
+
     def __init__(self, driver, element: WebElement):
         super().__init__(driver)
         self.element = element
 
-    def get_odds(self, outcome: str) -> float:
-        button = self._button_for(outcome)
-        return parse_number(button.find(*self.ODDS_VALUE).text)
-
     def get_teams(self) -> tuple[str, str]:
-        home_team = self.element.find(*self.HOME_TEAM).text.strip()
-        away_team = self.element.find(*self.AWAY_TEAM).text.strip()
+        home_team = self.element.find_element(*self.HOME_TEAM).text.strip()
+        away_team = self.element.find_element(*self.AWAY_TEAM).text.strip()
         return home_team, away_team
 
-    def select(self, outcome: str) -> MatchSelection:
-        button = self._button_for(outcome)
+    def get_odds(self, odd_type: str) -> float:
+        button = self.element.find_element(*self._button_locator(odd_type))
+        return parse_number(button.find_element(*self.ODDS_VALUE).text)
 
-        odds = parse_number(button.find(*self.ODDS_VALUE).text)
+    def select_odd_type(self, odd_type: str) -> tuple[MatchSelection, BetSlip]:
         home_team, away_team = self.get_teams()
+        odds = self.get_odds(odd_type)
 
-        button.click()
+        button_locator = self._button_locator(odd_type)
+        self.element.find_element(*button_locator).click()
 
-        return MatchSelection(home_team, away_team, outcome, odds)
+        selection = MatchSelection(
+            home_team=home_team,
+            away_team=away_team,
+            odd_type=odd_type,
+            odds=odds,
+        )
+        return selection, BetSlip(self.driver)
 
-    def _button_for(self, outcome: str) -> WebElement:
-        if outcome == "1":
-            return self.element.click(*self.HOME_ODDS_BUTTON)
-        elif outcome == "2":
-            return self.element.click(*self.AWAY_ODDS_BUTTON)
-        elif outcome == "X":
-            return self.element.click(*self.DRAW_ODDS_BUTTON)
-        else:
-            raise ValueError(f"Unknown outcome {outcome!r}")
+    def _button_locator(self, odd_type: str) -> tuple[str, str]:
+        return self.OUTCOME_BUTTONS[odd_type]

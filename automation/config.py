@@ -7,10 +7,15 @@ class Config:
     USER_ID = os.getenv("USER_ID", "candidate-2zwV7d2uMnKk")
 
     API_TIMEOUT = 10
+    EXPLICIT_WAIT = 10
 
     @property
     def api_base_url(self) -> str:
         return f"{self.BASE_URL}/api"
+
+    @property
+    def app_url(self) -> str:
+        return f"{self.BASE_URL}?user-id={self.USER_ID}"
 
 
 class BusinessRules:

@@ -1,6 +1,6 @@
 """Shared page object helpers."""
 
-from typing import Optional
+from typing import Callable
 
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
@@ -19,9 +19,28 @@ class BasePage:
     def find(self, locator: tuple[str, str]) -> WebElement:
         return self.wait.until(EC.presence_of_element_located(locator))
 
+    def find_until(
+        self, locator: tuple[str, str], predicate: Callable[[str], bool]
+    ) -> WebElement:
+        return self.wait.until(
+            lambda d: (
+                d.find_element(*locator)
+                if predicate(d.find_element(*locator).text)
+                else False
+            )
+        )
+
+    def get_text(self, locator: tuple[str, str]) -> str:
+        return self.get_text_until(locator, lambda text: bool(text.strip()))
+
+    def get_text_until(
+        self, locator: tuple[str, str], predicate: Callable[[str], bool]
+    ) -> str:
+        return self.find_until(locator, predicate).text
+
     def find_all(self, locator: tuple[str, str]) -> list[WebElement]:
         self.wait.until(EC.presence_of_element_located(locator))
-        return self.driver.find_all(*locator)
+        return self.driver.find_elements(*locator)
 
     def find_any(self, *locators: tuple[str, str]) -> WebElement:
         """Espera a que aparezca cualquiera de los locators dados y devuelve el primero encontrado."""
@@ -41,20 +60,6 @@ class BasePage:
         element = self.wait.until(EC.element_to_be_clickable(locator))
         element.clear()
         element.send_keys(text)
-
-    def get_text(self, locator: tuple[str, str]) -> str:
-        return self.wait.until(EC.visibility_of_element_located(locator)).text.strip()
-
-    def is_visible(
-        self, locator: tuple[str, str], timeout: Optional[int] = None
-    ) -> bool:
-        try:
-            WebDriverWait(self.driver, timeout or config.EXPLICIT_WAIT).until(
-                EC.visibility_of_element_located(locator)
-            )
-            return True
-        except Exception:
-            return False
 
     def is_enabled(self, locator: tuple[str, str]) -> bool:
         element = self.find(locator)

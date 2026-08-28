@@ -9,11 +9,14 @@ from utils import parse_number
 class BetSlip(BasePage):
 
     SELECTION_TEAMS = (By.CSS_SELECTOR, ".betSelectionTeams")
+    SELECTION_MARKET = (By.CSS_SELECTOR, ".betSelectionMarket")
     SELECTION_ODDS = (By.CSS_SELECTOR, ".betSelectionOdds")
     SLIP_BALANCE = (By.ID, "bet-slip")
     STAKE_INPUT = (By.ID, "bet-slip-stake-input")
     POTENTIAL_PAYOUT = (By.ID, "bet-slip-potential-payout")
     PLACE_BET_BUTTON = (By.ID, "bet-slip-place-bet")
+
+    LABEL_TO_OUTCOME = {"HOME": "1", "DRAW": "X", "AWAY": "2"}
 
     def __init__(self, driver):
         super().__init__(driver)
@@ -27,6 +30,10 @@ class BetSlip(BasePage):
         text = self.get_text(self.SELECTION_TEAMS)
         parts = [p.strip() for p in text.replace("\n", " ").split(" vs ")]
         return parts[0], parts[1]
+
+    def get_odd_type(self) -> str:
+        label = self.get_text(self.SELECTION_MARKET).split(":")[-1].strip().upper()
+        return self.LABEL_TO_OUTCOME[label]
 
     def get_expected_payout(self, stake: float, odds: float) -> float:
         return round(stake * odds, 2)

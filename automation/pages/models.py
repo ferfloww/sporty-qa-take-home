@@ -10,10 +10,6 @@ class MatchSelection:
     odd_type: str
     odds: float
 
-    @property
-    def display_name(self) -> str:
-        return f"{self.home_team} vs {self.away_team}"
-
 
 @dataclass(frozen=True)
 class BetSlipInfo:

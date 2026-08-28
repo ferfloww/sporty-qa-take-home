@@ -1,3 +1,4 @@
+import allure
 import pytest
 
 from api.betting_client import BettingApiClient
@@ -11,6 +12,8 @@ def match_id(api: BettingApiClient) -> str:
     return api.get_first_match_id()
 
 
+@allure.title("Negative stake ({stake}) is rejected, not credited")
+@allure.severity(allure.severity_level.CRITICAL)
 @pytest.mark.api
 @pytest.mark.critical
 @pytest.mark.parametrize("stake", NEGATIVE_STAKES)
@@ -39,6 +42,8 @@ def test_negative_stake_is_rejected(
     )
 
 
+@allure.title("Out-of-range stake ({stake}) is rejected as {expected_error}")
+@allure.severity(allure.severity_level.NORMAL)
 @pytest.mark.api
 @pytest.mark.parametrize(
     "stake, expected_error",
@@ -73,6 +78,8 @@ def test_out_of_range_stake_is_rejected(
     ), f"Balance moved from {clean_balance} to {balance_after} on a rejected bet"
 
 
+@allure.title("Boundary stake ({stake}) is accepted")
+@allure.severity(allure.severity_level.NORMAL)
 @pytest.mark.api
 @pytest.mark.parametrize("stake", [BusinessRules.STAKE_MIN, BusinessRules.STAKE_MAX])
 def test_boundary_stake_is_accepted(

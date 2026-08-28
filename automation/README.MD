@@ -35,6 +35,19 @@ Environment and user are configurable:
 BASE_URL=https://staging.example.com USER_ID=some-other-user pytest
 ```
 
+### Allure report
+
+```bash
+pip install allure-pytest        # already in requirements.txt
+pytest --alluredir=allure-results
+allure serve allure-results      # needs the allure commandline, e.g. `brew install allure`
+```
+
+Failed browser tests attach a screenshot and the page HTML at the point of
+failure (see the `driver` fixture in `conftest.py`), so a red e2e run in the
+report shows what the page actually looked like instead of just a stack
+trace.
+
 ---
 
 ## Structure

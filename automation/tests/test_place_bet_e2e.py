@@ -1,3 +1,4 @@
+import allure
 import pytest
 
 from api.betting_client import BettingApiClient
@@ -6,6 +7,8 @@ from pages.home_page import HomePage
 STAKE = "10.00"
 
 
+@allure.title("Place a bet end to end")
+@allure.severity(allure.severity_level.CRITICAL)
 @pytest.mark.e2e
 @pytest.mark.critical
 def test_place_bet_end_to_end(
@@ -22,7 +25,8 @@ def test_place_bet_end_to_end(
         clean_balance, abs=0.01
     ), f"Header shows {starting_balance} but the persisted balance is {clean_balance}"
 
-    match_card, bet_slip = home_page.matches.get_match_card(0).select_odd_type("1")
+    with allure.step("Select outcome '1' (home win) on the first match"):
+        match_card, bet_slip = home_page.matches.get_match_card(0).select_odd_type("1")
 
     assert match_card.home_team == bet_slip.get_selection_teams()[0], (
         f"Bet slip home team '{bet_slip.get_selection_teams()[0]}' does not match the "

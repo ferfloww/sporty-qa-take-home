@@ -1,5 +1,3 @@
-import time
-
 import pytest
 
 from api.betting_client import BettingApiClient
@@ -13,6 +11,9 @@ STAKE = "10.00"
 def test_place_bet_end_to_end(
     home_page: HomePage, api: BettingApiClient, clean_balance: float
 ):
+    """The one flow that actually moves money - if this breaks, nothing else matters."""
+
+    # This actions should not be added, since the total balance must be updated all time for future money actions
     home_page.driver.refresh()
 
     starting_balance = home_page.get_header_balance()
@@ -51,16 +52,18 @@ def test_place_bet_end_to_end(
 
     receipt_info = receipt_modal.get_receipt()
 
+    # This assertion is meant to failed. Already docummented in the execution-results.md file.
     assert bet_slip_info.home_team == receipt_info.home_team, (
         f"Receipt home team '{receipt_info.home_team}' does not match the bet slip "
         f"home team '{bet_slip_info.home_team}'"
     )
 
+    # This assertion is meant to failed. Already docummented in the execution-results.md file.
     assert bet_slip_info.away_team == receipt_info.away_team, (
         f"Receipt away team '{receipt_info.away_team}' does not match the bet slip "
         f"away team '{bet_slip_info.away_team}'"
     )
-
+    
     assert receipt_info.stake == pytest.approx(
         float(STAKE), abs=0.01
     ), f"Receipt stake {receipt_info.stake} does not match the stake entered ({STAKE})"
@@ -69,6 +72,7 @@ def test_place_bet_end_to_end(
         bet_slip_info.odds, abs=0.01
     ), f"Receipt odds {receipt_info.odds} do not match the odds selected ({bet_slip_info.odds})"
 
+    # This assertion is meant to failed. Already docummented in the execution-results.md file.
     assert receipt_info.payout == pytest.approx(bet_slip_info.payout, abs=0.01), (
         f"Receipt payout {receipt_info.payout} does not match the payout confirmed "
         f"before placement ({bet_slip_info.payout})"
@@ -85,6 +89,7 @@ def test_place_bet_end_to_end(
 
     bet_slip = receipt_modal.close_receipt()
 
+    # This actions should not be added, since the total balance must be updated all time for future money actions
     home_page.driver.refresh()
 
     displayed_balance = home_page.get_header_balance()

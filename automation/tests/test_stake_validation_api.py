@@ -1,11 +1,3 @@
-"""Stake validation on POST /api/place-bet - min/max and negative values.
-
-Negative stakes get their own test since they're the worst case: instead of
-just rejecting an invalid bet, they flip the balance operation and credit
-the account. Parametrized across a few magnitudes to make sure rejection
-depends on the sign, not the size.
-"""
-
 import pytest
 
 from api.betting_client import BettingApiClient
@@ -28,6 +20,8 @@ def test_negative_stake_is_rejected(
     clean_balance: float,
     stake: float,
 ):
+    """The one flow that actually moves money - if this breaks, nothing else matters."""
+
     response = api.place_bet(match_id=match_id, selection="HOME", stake=stake)
 
     assert response.status_code == 422, (
@@ -60,6 +54,9 @@ def test_out_of_range_stake_is_rejected(
     stake: float,
     expected_error: str,
 ):
+    """Worst case in the whole app: a negative stake flips the balance
+    operation instead of just being an invalid bet."""
+
     response = api.place_bet(match_id=match_id, selection="HOME", stake=stake)
 
     assert response.status_code == 422, (
@@ -84,6 +81,9 @@ def test_boundary_stake_is_accepted(
     clean_balance: float,
     stake: float,
 ):
+    """Checking the valid edges too, not just the rejections - a validator
+    that's too strict is as much a bug as one that's too loose."""
+
     response = api.place_bet(match_id=match_id, selection="HOME", stake=stake)
 
     assert response.status_code == 200, (
